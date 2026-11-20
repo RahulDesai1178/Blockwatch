@@ -1,0 +1,12 @@
+{
+ "ts": 1795887701,
+ "iso": "2026-11-28T17:41:41+00:00",
+ "ok": true,
+ "seconds": 89.1,
+ "errors": [],
+ "log": [
+  "discovered 1094 games across 28 charts",
+  "details for 900 games, votes for 900",
+  "saved 900 games, total 11,829,164 players, 19 new events"
+ ]
+}
