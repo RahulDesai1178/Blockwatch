@@ -1,0 +1,54 @@
+name: Collect Roblox stats
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes (GitHub may delay runs by a few minutes)
+  workflow_dispatch:          # lets you run it by hand from the Actions tab
+  push:
+    branches: [main]
+    paths: ["collector/**", ".github/workflows/collect.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get existing data (data branch)
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          URL="https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$URL" data >/dev/null 2>&1; then
+            git clone --quiet --depth 1 --branch data "$URL" data
+          else
+            mkdir data && git -C data init --quiet -b data
+          fi
+
+      - name: Collect
+        run: python3 collector/collect.py data
+
+      - name: Publish data
+        if: always()
+        working-directory: data
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "blockwatch-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          # keep the data branch to a single commit so the repo never bloats
+          if git rev-parse --verify -q HEAD >/dev/null; then
+            git commit --quiet --amend -m "data $(date -u +%Y-%m-%dT%H:%MZ)"
+          else
+            git commit --quiet -m "data $(date -u +%Y-%m-%dT%H:%MZ)"
+          fi
+          git push --quiet --force "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:data

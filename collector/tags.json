@@ -1,0 +1,705 @@
+{
+ "categories": {
+  "inc": [
+   "Incremental / +1 Sim",
+   "Number-go-up games: +1 every second, tapping, upgrading, rebirths."
+  ],
+  "steal": [
+   "Steal-a-Thing",
+   "Build a base, collect items, steal from other players' bases."
+  ],
+  "collect": [
+   "Pets, Eggs & Collecting",
+   "Hatch, catch or feed for animals, pets and eggs to complete a collection."
+  ],
+  "rng": [
+   "RNG & Gacha",
+   "Roll, spin or open for rare drops."
+  ],
+  "farm": [
+   "Farming & Gardening",
+   "Plant, grow and sell."
+  ],
+  "tycoon": [
+   "Tycoon",
+   "Build up a business or base that earns over time."
+  ],
+  "hang": [
+   "Hangout & Social",
+   "Low-pressure places to chill, chat and show off."
+  ],
+  "rp": [
+   "Roleplay & Life Sim",
+   "Houses, jobs, families, towns."
+  ],
+  "fashion": [
+   "Avatar & Fashion",
+   "Outfits, avatar editors, runway and dress-up."
+  ],
+  "horror": [
+   "Horror",
+   "Scary games, chases, killer-vs-survivors."
+  ],
+  "surv": [
+   "Survival & Co-op",
+   "Team up, gather supplies and last as long as you can."
+  ],
+  "party": [
+   "Party & Minigames",
+   "Short rounds, social deduction, quick chaos."
+  ],
+  "arpg": [
+   "Action RPG",
+   "Level up, quest, grind bosses."
+  ],
+  "td": [
+   "Tower Defense",
+   "Place units, hold the waves."
+  ],
+  "bg": [
+   "Battlegrounds & Fighting",
+   "Melee combat, abilities, duels."
+  ],
+  "fps": [
+   "Shooter & PVP",
+   "Guns, arenas, competitive PVP."
+  ],
+  "phys": [
+   "Physics & Ragdoll",
+   "Ragdoll, destruction and physics sandboxes."
+  ],
+  "sport": [
+   "Sports",
+   "Soccer, volleyball, basketball and more."
+  ],
+  "fish": [
+   "Fishing",
+   "Cast, catch, upgrade the rod."
+  ],
+  "obby": [
+   "Obby & Parkour",
+   "Obstacle courses and climbing."
+  ],
+  "drive": [
+   "Driving & Vehicles",
+   "Cars, racing, drifting."
+  ],
+  "build": [
+   "Building & Sandbox",
+   "Build things: worlds, tracks, bases."
+  ],
+  "mine": [
+   "Mining & Digging",
+   "Dig down, find ores, upgrade the pickaxe."
+  ],
+  "puzzle": [
+   "Puzzle & Strategy",
+   "Think-y games, puzzles, strategy."
+  ],
+  "anime": [
+   "Anime-Inspired",
+   "Games themed on anime styles or series."
+  ],
+  "other": [
+   "Uncategorized",
+   "Not tagged yet."
+  ]
+ },
+ "overrides": {
+  "steal an egg": [
+   "steal",
+   "collect"
+  ],
+  "adopt me!": [
+   "rp",
+   "hang"
+  ],
+  "throw food for animals": [
+   "collect",
+   "inc"
+  ],
+  "brookhaven rp": [
+   "rp",
+   "hang"
+  ],
+  "blox fruits": [
+   "arpg",
+   "anime"
+  ],
+  "99 nights in the forest": [
+   "surv",
+   "horror"
+  ],
+  "break and steal an egg": [
+   "steal",
+   "collect"
+  ],
+  "rivals": [
+   "fps"
+  ],
+  "fish it!": [
+   "fish"
+  ],
+  "anime adventures": [
+   "td",
+   "anime"
+  ],
+  "murder mystery 2": [
+   "party",
+   "fps"
+  ],
+  "hyper realistic ragdoll": [
+   "phys"
+  ],
+  "jujutsu shenanigans": [
+   "bg",
+   "anime"
+  ],
+  "dandy's world": [
+   "horror",
+   "surv"
+  ],
+  "anime crusaders x": [
+   "td",
+   "anime"
+  ],
+  "catalog avatar creator": [
+   "fashion",
+   "hang"
+  ],
+  "fisch": [
+   "fish"
+  ],
+  "tap simulator reborn": [
+   "inc"
+  ],
+  "violence district": [
+   "horror"
+  ],
+  "malam sama opah": [
+   "horror",
+   "surv"
+  ],
+  "pet simulator 99!": [
+   "collect",
+   "inc"
+  ],
+  "the strongest battlegrounds": [
+   "bg",
+   "anime"
+  ],
+  "bee swarm simulator": [
+   "collect",
+   "inc"
+  ],
+  "sol's rng": [
+   "rng"
+  ],
+  "forsaken": [
+   "horror"
+  ],
+  "king legacy": [
+   "arpg",
+   "anime"
+  ],
+  "evade": [
+   "horror",
+   "party"
+  ],
+  "attack on titan revolution": [
+   "arpg",
+   "anime"
+  ],
+  "ant evolution": [
+   "inc"
+  ],
+  "survive your ideas": [
+   "surv",
+   "party"
+  ],
+  "dress to impress": [
+   "fashion",
+   "hang"
+  ],
+  "steal a brainrot": [
+   "steal",
+   "collect"
+  ],
+  "drag drive simulator": [
+   "drive"
+  ],
+  "volleyball legends": [
+   "sport",
+   "anime"
+  ],
+  "ragdoll soccer": [
+   "sport",
+   "phys"
+  ],
+  "100 miles down the river": [
+   "surv"
+  ],
+  "bloxng": [
+   "phys",
+   "drive"
+  ],
+  "murderers vs sheriffs": [
+   "fps"
+  ],
+  "stand out": [
+   "bg",
+   "anime"
+  ],
+  "illegal soccer": [
+   "sport"
+  ],
+  "driving empire": [
+   "drive",
+   "rp"
+  ],
+  "dont splash": [
+   "obby"
+  ],
+  "fling things and people": [
+   "phys",
+   "hang"
+  ],
+  "practical basketball": [
+   "sport"
+  ],
+  "net a fish!": [
+   "fish",
+   "collect"
+  ],
+  "cameraman tower defense": [
+   "td"
+  ],
+  "toilet tower defense": [
+   "td"
+  ],
+  "throw a seed": [
+   "farm",
+   "inc"
+  ],
+  "shoot arrows for animals!": [
+   "collect",
+   "inc"
+  ],
+  "clean the ballpit!": [
+   "inc"
+  ],
+  "anime dice": [
+   "rng",
+   "anime"
+  ],
+  "100 days at sea": [
+   "surv"
+  ],
+  "lethal ape experience": [
+   "surv",
+   "horror"
+  ],
+  "huss valley": [
+   "rp"
+  ],
+  "the forge": [
+   "arpg",
+   "mine"
+  ],
+  "mukbang game": [
+   "hang",
+   "party"
+  ],
+  "grow a garden": [
+   "farm",
+   "collect"
+  ],
+  "berry avenue rp": [
+   "rp",
+   "hang"
+  ],
+  "voxel wars": [
+   "fps",
+   "build"
+  ],
+  "build your world!": [
+   "build",
+   "hang"
+  ],
+  "bloody ragdoll physics": [
+   "phys"
+  ],
+  "hypershot": [
+   "fps"
+  ],
+  "creatures of sonaria survive kaiju animals": [
+   "surv",
+   "rp"
+  ],
+  "steal an anime pack": [
+   "steal",
+   "anime"
+  ],
+  "kit pvp ffa": [
+   "fps"
+  ],
+  "realistic ragdoll mma": [
+   "phys",
+   "bg"
+  ],
+  "unstable smp ffa": [
+   "fps",
+   "build"
+  ],
+  "my avatar!": [
+   "fashion",
+   "hang"
+  ],
+  "vox seas": [
+   "arpg"
+  ],
+  "tower defense simulator": [
+   "td"
+  ],
+  "dead rails": [
+   "surv"
+  ],
+  "lifetogether rp": [
+   "rp",
+   "hang"
+  ],
+  "build a racetrack": [
+   "build",
+   "drive"
+  ],
+  "bedwars": [
+   "fps",
+   "build"
+  ],
+  "criminal simulator": [
+   "inc"
+  ],
+  "volley bomb": [
+   "sport",
+   "party"
+  ],
+  "tower of hell": [
+   "obby"
+  ],
+  "catalog avatar runway": [
+   "fashion",
+   "hang"
+  ],
+  "vanguards: trail of the saint": [
+   "td",
+   "anime"
+  ],
+  "climb for animals eggs": [
+   "obby",
+   "collect",
+   "inc"
+  ],
+  "13 days to escape": [
+   "surv",
+   "horror"
+  ],
+  "kick a lucky block": [
+   "rng",
+   "inc"
+  ],
+  "fish for secret animals!": [
+   "fish",
+   "collect"
+  ],
+  "project slayers 2": [
+   "arpg",
+   "anime"
+  ],
+  "stop the tsunami!": [
+   "surv",
+   "party"
+  ],
+  "flee the facility": [
+   "horror",
+   "party"
+  ],
+  "krn: crosshair": [
+   "fps"
+  ],
+  "+1 speed keyboard escape | candy & chocolate": [
+   "inc",
+   "obby"
+  ],
+  "my anime mine": [
+   "mine",
+   "inc",
+   "anime"
+  ],
+  "sandworm playground": [
+   "phys"
+  ],
+  "blade ball": [
+   "bg",
+   "party"
+  ],
+  "welcome to bloxburg": [
+   "rp",
+   "build"
+  ],
+  "squid game x": [
+   "party"
+  ],
+  "blue lock: rivals": [
+   "sport",
+   "anime"
+  ],
+  "depth incremental": [
+   "inc",
+   "mine"
+  ],
+  "heavyweight fishing": [
+   "fish",
+   "inc"
+  ],
+  "stack a butter squishy": [
+   "hang",
+   "inc"
+  ],
+  "lethal ape": [
+   "surv",
+   "mine"
+  ],
+  "bike for egg!": [
+   "inc",
+   "collect"
+  ],
+  "do not stop.": [
+   "drive",
+   "obby"
+  ]
+ },
+ "rules": [
+  [
+   "\\+\\s?1\\b|every second|incremental|clicker|tap(ping)? sim|rebirth|idle",
+   "inc"
+  ],
+  [
+   "\\bsteal\\b",
+   "steal"
+  ],
+  [
+   "\\begg|pet sim|\\bpets?\\b|for animals|catch",
+   "collect"
+  ],
+  [
+   "\\brng\\b|gacha|lucky block|dice|\\broll\\b|spin",
+   "rng"
+  ],
+  [
+   "garden|farm|\\bgrow\\b|seed|plant",
+   "farm"
+  ],
+  [
+   "tycoon",
+   "tycoon"
+  ],
+  [
+   "hangout|chill|vibe|\\bhang\\b|asmr|cafe",
+   "hang"
+  ],
+  [
+   "\\brp\\b|roleplay|life ?sim|avenue|town|city life|bloxburg|family",
+   "rp"
+  ],
+  [
+   "avatar|catalog|dress|fashion|outfit|runway",
+   "fashion"
+  ],
+  [
+   "horror|scary|nights|backrooms|killer|survive the|forsaken|doors\\b|piggy",
+   "horror"
+  ],
+  [
+   "surviv|\\bdays\\b|island|stranded|apocalypse|tsunami|escape",
+   "surv"
+  ],
+  [
+   "murder|mystery|party|minigame|squid|flee|hide and seek|tag\\b",
+   "party"
+  ],
+  [
+   "legacy|fruits?\\b|slayer|quest|rpg|dungeon|sword|piece",
+   "arpg"
+  ],
+  [
+   "tower defen[cs]e|\\btd\\b",
+   "td"
+  ],
+  [
+   "battleground|fight|combat|\\bmma\\b|boxing|duel|blade ball",
+   "bg"
+  ],
+  [
+   "rivals|shoot|gun|\\bfps\\b|sniper|pvp|wars?\\b|arsenal|bedwars|crosshair",
+   "fps"
+  ],
+  [
+   "ragdoll|physics|fling|destruction|crash",
+   "phys"
+  ],
+  [
+   "soccer|football|basketball|volley|baseball|hockey|tennis|golf|\\bnfl\\b|blue lock|sports?\\b",
+   "sport"
+  ],
+  [
+   "\\bfish",
+   "fish"
+  ],
+  [
+   "obby|parkour|tower of|climb|\\bjump",
+   "obby"
+  ],
+  [
+   "driv|\\bcar\\b|cars\\b|racing|race|drift|truck|bike",
+   "drive"
+  ],
+  [
+   "\\bbuild|sandbox|craft",
+   "build"
+  ],
+  [
+   "\\bmine\\b|mining|dig\\b|digging|\\bdepth",
+   "mine"
+  ],
+  [
+   "puzzle|strategy|chess",
+   "puzzle"
+  ],
+  [
+   "anime|jujutsu|naruto|titan|demon|one piece|bleach|hunter",
+   "anime"
+  ]
+ ],
+ "genre": [
+  [
+   "incremental",
+   "inc"
+  ],
+  [
+   "tycoon",
+   "tycoon"
+  ],
+  [
+   "hangout",
+   "hang"
+  ],
+  [
+   "social",
+   "hang"
+  ],
+  [
+   "roleplay",
+   "rp"
+  ],
+  [
+   "life",
+   "rp"
+  ],
+  [
+   "dress up",
+   "fashion"
+  ],
+  [
+   "avatar",
+   "fashion"
+  ],
+  [
+   "horror",
+   "horror"
+  ],
+  [
+   "survival",
+   "surv"
+  ],
+  [
+   "party",
+   "party"
+  ],
+  [
+   "minigame",
+   "party"
+  ],
+  [
+   "rpg",
+   "arpg"
+  ],
+  [
+   "tower defense",
+   "td"
+  ],
+  [
+   "battleground",
+   "bg"
+  ],
+  [
+   "fighting",
+   "bg"
+  ],
+  [
+   "shooter",
+   "fps"
+  ],
+  [
+   "sports",
+   "sport"
+  ],
+  [
+   "racing",
+   "drive"
+  ],
+  [
+   "driving",
+   "drive"
+  ],
+  [
+   "vehicle",
+   "drive"
+  ],
+  [
+   "obby",
+   "obby"
+  ],
+  [
+   "platformer",
+   "obby"
+  ],
+  [
+   "sandbox",
+   "build"
+  ],
+  [
+   "building",
+   "build"
+  ],
+  [
+   "puzzle",
+   "puzzle"
+  ],
+  [
+   "strategy",
+   "puzzle"
+  ],
+  [
+   "simulation",
+   "inc"
+  ],
+  [
+   "physics",
+   "phys"
+  ],
+  [
+   "fishing",
+   "fish"
+  ]
+ ]
+}
