@@ -1,15 +1,24 @@
 name: Collect Roblox stats
 
+# How this keeps running every ~10 minutes:
+#  - Each run collects data, then waits until ~10 minutes after it started and triggers the next run itself.
+#    GitHub always allows a workflow to start itself this way, so the chain keeps going on its own and
+#    isn't affected by GitHub's slow scheduler or the 60-day inactivity pause.
+#  - The cron schedule below is a safety net: if the chain ever breaks (e.g. a GitHub outage),
+#    the next scheduled run restarts it.
+#  - "concurrency" makes sure only one chain ever runs; duplicates cancel themselves.
+
 on:
+  workflow_dispatch:
   schedule:
-    - cron: "*/10 * * * *"   # every 10 minutes (GitHub may delay runs by a few minutes)
-  workflow_dispatch:          # lets you run it by hand from the Actions tab
+    - cron: "*/30 * * * *"
   push:
     branches: [main]
     paths: ["collector/**", ".github/workflows/collect.yml"]
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: collect
@@ -18,8 +27,11 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 15
     steps:
+      - name: Note start time
+        run: echo "START=$(date +%s)" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
 
       - name: Get existing data (data branch)
@@ -34,10 +46,11 @@ jobs:
           fi
 
       - name: Collect
+        continue-on-error: true
         run: python3 collector/collect.py data
 
       - name: Publish data
-        if: always()
+        continue-on-error: true
         working-directory: data
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,3 +65,22 @@ jobs:
             git commit --quiet -m "data $(date -u +%Y-%m-%dT%H:%MZ)"
           fi
           git push --quiet --force "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:data
+
+      - name: Wait, then start the next run
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ELAPSED=$(( $(date +%s) - START ))
+          WAIT=$(( 570 - ELAPSED ))
+          if [ "$WAIT" -gt 0 ]; then echo "waiting ${WAIT}s"; sleep "$WAIT"; fi
+          # skip if another run is already waiting (keeps a single chain)
+          for st in queued pending waiting requested; do
+            N=$(gh run list -R "$GITHUB_REPOSITORY" -w collect.yml -s "$st" --json databaseId -q 'length' 2>/dev/null || echo 0)
+            if [ "${N:-0}" -gt 0 ]; then echo "next run already $st"; exit 0; fi
+          done
+          for i in 1 2 3 4 5; do
+            gh workflow run collect.yml -R "$GITHUB_REPOSITORY" --ref main && exit 0
+            sleep 20
+          done
+          echo "could not start next run; the cron schedule will restart the chain"

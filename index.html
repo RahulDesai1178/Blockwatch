@@ -216,6 +216,7 @@ select.q option{background:var(--panel)}
 .kv span:nth-child(odd){color:var(--dim)}
 .kv span:nth-child(even){text-align:right;font-family:var(--mono);color:var(--hi);font-size:12px}
 .ev .ago{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-left:6px}
+.live.stale{color:var(--red)}.live.stale .dot{background:var(--red);animation:none}
 .loading{padding:40px;text-align:center;color:var(--dim);font-family:var(--mono)}
 </style>
 </head>
@@ -449,7 +450,8 @@ function banner(){const b=document.getElementById('banner');
   const age=Date.now()/1000-(META.trackingSince||META.ts);
   if(age<7*86400){b.className='banner on'; b.innerHTML=`<b>Building history.</b> Tracking since ${new Date(META.trackingSince*1000).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}. 1H changes appear after an hour, 24H after a day, 7D after a week.`;}
   else b.className='banner';}
-function freshLabel(){document.getElementById('fresh').textContent=MODE==='live'?`LIVE · updated ${ago(META.ts)}`:'SNAPSHOT';}
+function freshLabel(){const el=document.getElementById('fresh'), live=el.parentElement, stale=MODE==='live'&&Date.now()/1000-META.ts>30*60;
+  el.textContent=MODE!=='live'?'SNAPSHOT':(stale?'STALE · ':'LIVE · ')+'updated '+ago(META.ts); live.classList.toggle('stale',stale||MODE!=='live');}
 // ---------- filtering ----------
 function filtered(){const q=S.q.toLowerCase();
   return G.filter(g=>(!q||g.name.toLowerCase().includes(q)||(g.creator||'').toLowerCase().includes(q))
