@@ -35,7 +35,7 @@ def err(where, e):
     errors.append(msg)
 
 
-def get(url, params=None, tries=4):
+def get(url, params=None, tries=6):
     if params:
         url += ("&" if "?" in url else "?") + urllib.parse.urlencode(params)
     last = None
@@ -50,7 +50,8 @@ def get(url, params=None, tries=4):
         except urllib.error.HTTPError as e:
             last = e
             if e.code in (429, 500, 502, 503, 504):
-                time.sleep(2 ** i + 1)
+                wait = e.headers.get("Retry-After") if e.headers else None
+                time.sleep(min(30, float(wait)) if wait and wait.isdigit() else 3 * 2 ** i)
                 continue
             raise
         except Exception as e:  # network hiccup
@@ -166,6 +167,16 @@ def chunks(seq, n):
 
 def fetch_details(uids):
     games, votes = {}, {}
+    _fetch(uids, games, votes)
+    missing = [u for u in uids if u not in games or u not in votes]
+    if missing:  # second pass for batches that were rate-limited
+        time.sleep(5)
+        _fetch(missing, games, votes)
+    log(f"details for {len(games)} games, votes for {len(votes)}")
+    return games, votes
+
+
+def _fetch(uids, games, votes):
     for part in chunks(uids, 50):
         ids = ",".join(map(str, part))
         try:
@@ -178,9 +189,7 @@ def fetch_details(uids):
                 votes[v["id"]] = v
         except Exception as e:
             err("games.roblox.com/v1/games/votes", e)
-        time.sleep(0.3)
-    log(f"details for {len(games)} games, votes for {len(votes)}")
-    return games, votes
+        time.sleep(0.8)
 
 
 # ---------------------------------------------------------------- tagging
@@ -197,19 +206,22 @@ def clean(name):
 
 
 def tag(name, g):
+    """Categories for a game: manual override > Roblox subgenre > name keywords > Roblox genre."""
     key = clean(name).lower()
     if key in TAGS.get("overrides", {}):
         return TAGS["overrides"][key]
     out = []
+    def add(t):
+        if t and t not in out:
+            out.append(t)
+    add(TAGS.get("genre2", {}).get(g.get("genre_l2") or ""))
     for rx, t in RULES:
-        if rx.search(key) and t not in out:
-            out.append(t)
-    gtxt = " ".join(str(g.get(k) or "") for k in ("genre_l2", "genre_l1", "genre")).lower()
-    for needle, t in TAGS.get("genre", []):
-        if needle in gtxt and t not in out:
-            out.append(t)
+        if rx.search(key):
+            add(t)
+    if not out or out == ["anime"]:
+        add(TAGS.get("genre1", {}).get(g.get("genre_l1") or ""))
     # an "anime" tag alone is a theme, not a game type
-    if out and out[0] == "anime" and len(out) > 1:
+    if len(out) > 1 and out[0] == "anime":
         out = out[1:] + ["anime"]
     return out[:3] or ["other"]
 

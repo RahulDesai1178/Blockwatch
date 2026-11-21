@@ -100,6 +100,18 @@
    "Anime-Inspired",
    "Games themed on anime styles or series."
   ],
+  "music": [
+   "Music & Rhythm",
+   "Listen, perform, DJ or play along to music."
+  ],
+  "adventure": [
+   "Adventure & Story",
+   "Explore, follow a story, hunt for things."
+  ],
+  "sim": [
+   "Other Simulators",
+   "Simulation games that don't fit a more specific category."
+  ],
   "other": [
    "Uncategorized",
    "Not tagged yet."
@@ -520,10 +532,6 @@
    "horror"
   ],
   [
-   "surviv|\\bdays\\b|island|stranded|apocalypse|tsunami|escape",
-   "surv"
-  ],
-  [
    "murder|mystery|party|minigame|squid|flee|hide and seek|tag\\b",
    "party"
   ],
@@ -580,126 +588,67 @@
    "anime"
   ]
  ],
- "genre": [
-  [
-   "incremental",
-   "inc"
-  ],
-  [
-   "tycoon",
-   "tycoon"
-  ],
-  [
-   "hangout",
-   "hang"
-  ],
-  [
-   "social",
-   "hang"
-  ],
-  [
-   "roleplay",
-   "rp"
-  ],
-  [
-   "life",
-   "rp"
-  ],
-  [
-   "dress up",
-   "fashion"
-  ],
-  [
-   "avatar",
-   "fashion"
-  ],
-  [
-   "horror",
-   "horror"
-  ],
-  [
-   "survival",
-   "surv"
-  ],
-  [
-   "party",
-   "party"
-  ],
-  [
-   "minigame",
-   "party"
-  ],
-  [
-   "rpg",
-   "arpg"
-  ],
-  [
-   "tower defense",
-   "td"
-  ],
-  [
-   "battleground",
-   "bg"
-  ],
-  [
-   "fighting",
-   "bg"
-  ],
-  [
-   "shooter",
-   "fps"
-  ],
-  [
-   "sports",
-   "sport"
-  ],
-  [
-   "racing",
-   "drive"
-  ],
-  [
-   "driving",
-   "drive"
-  ],
-  [
-   "vehicle",
-   "drive"
-  ],
-  [
-   "obby",
-   "obby"
-  ],
-  [
-   "platformer",
-   "obby"
-  ],
-  [
-   "sandbox",
-   "build"
-  ],
-  [
-   "building",
-   "build"
-  ],
-  [
-   "puzzle",
-   "puzzle"
-  ],
-  [
-   "strategy",
-   "puzzle"
-  ],
-  [
-   "simulation",
-   "inc"
-  ],
-  [
-   "physics",
-   "phys"
-  ],
-  [
-   "fishing",
-   "fish"
-  ]
- ]
+ "genre2": {
+  "Incremental Simulator": "inc",
+  "Tycoon": "tycoon",
+  "Vehicle Sim": "drive",
+  "Action RPG": "arpg",
+  "Battlegrounds & Fighting": "bg",
+  "Avatar Shopping": "fashion",
+  "Life": "rp",
+  "Sports": "sport",
+  "Open World Action": "arpg",
+  "Music & Audio": "music",
+  "Deathmatch Shooter": "fps",
+  "Sandbox": "build",
+  "Escape": "surv",
+  "Tower Defense": "td",
+  "Physics Sim": "phys",
+  "1 vs All": "party",
+  "Animal Sim": "rp",
+  "Minigame": "party",
+  "Word": "puzzle",
+  "Exploration": "adventure",
+  "Morph Roleplay": "rp",
+  "Tower Obby": "obby",
+  "PvE Shooter": "fps",
+  "Board & Card Games": "puzzle",
+  "Quiz": "party",
+  "Pet Care": "collect",
+  "Story": "adventure",
+  "Escape Room": "puzzle",
+  "Dress Up": "fashion",
+  "Racing": "drive",
+  "Runner": "obby",
+  "Coloring & Drawing": "hang",
+  "Video": "hang",
+  "Scavenger Hunt": "adventure",
+  "Childhood Game": "party",
+  "Turn-based RPG": "arpg",
+  "Showcase & Hub": "hang",
+  "Music & Rhythm": "music",
+  "Match & Merge": "puzzle",
+  "Open World & Survival RPG": "surv",
+  "Classic Obby": "obby",
+  "Battle Royale": "fps",
+  "Hangout": "hang",
+  "Social": "hang"
+ },
+ "genre1": {
+  "Survival": "surv",
+  "Obby & Platformer": "obby",
+  "Simulation": "sim",
+  "Party & Casual": "party",
+  "Puzzle": "puzzle",
+  "Strategy": "puzzle",
+  "Roleplay & Avatar Sim": "rp",
+  "Social": "hang",
+  "Adventure": "adventure",
+  "Entertainment": "hang",
+  "Action": "bg",
+  "RPG": "arpg",
+  "Shooter": "fps",
+  "Sports & Racing": "sport",
+  "Shopping": "fashion"
+ }
 }

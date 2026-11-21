@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLOCKWATCH — Roblox Intelligence Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080a0d;--panel:#0e1218;--panel2:#141a22;--line:#1d252f;--line2:#2a3542;
+  --text:#d5dde5;--dim:#8592a0;--faint:#4a5663;--hi:#f1f5f9;
+  --amber:#f5a524;--cyan:#45c7d1;--green:#46c17a;--red:#f06366;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;--sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;overflow:hidden;
+  background-image:linear-gradient(rgba(29,37,47,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(29,37,47,.55) 1px,transparent 1px);background-size:44px 44px}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.app{display:grid;grid-template-rows:52px auto 1fr;height:100vh}
+.lbl{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+/* top */
+.top{display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--line2);background:rgba(14,18,24,.96)}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:600;letter-spacing:.2em;font-size:15px;color:var(--hi)}
+.brand .hex{width:18px;height:18px;border:1.5px solid var(--amber);transform:rotate(45deg);position:relative;flex:none}
+.brand .hex::after{content:"";position:absolute;inset:4px;background:var(--amber)}
+.brand small{color:var(--dim);letter-spacing:.12em;font-weight:400;font-size:11px}
+.sp{flex:1}
+.tbtn{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:7px 11px;border:1px solid var(--line2);color:var(--text)}
+.tbtn:hover{border-color:var(--amber);color:var(--amber)}
+.tbtn.on{background:var(--amber);color:#111;border-color:var(--amber)}
+.live{font-family:var(--mono);font-size:11px;color:var(--amber);display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(245,165,36,.6)}50%{box-shadow:0 0 0 5px rgba(245,165,36,0)}}
+.mob{display:none}
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--line2);background:rgba(14,18,24,.9)}
+.kpi{padding:12px 16px;border-right:1px solid var(--line)}
+.kpi:last-child{border-right:none}
+.kpi .v{font-family:var(--mono);font-size:24px;font-weight:500;color:var(--hi);margin-top:4px}
+.kpi .s{font-size:12px;color:var(--dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* layout */
+.main{display:grid;grid-template-columns:270px 1fr 360px;min-height:0}
+.col{border-right:1px solid var(--line2);min-height:0;min-width:0;display:flex;flex-direction:column;background:rgba(10,13,17,.93)}
+.col:last-child{border-right:none}
+.scroll{overflow:auto;min-height:0;flex:1}
+.scroll::-webkit-scrollbar{width:8px;height:8px}.scroll::-webkit-scrollbar-thumb{background:var(--line2)}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:3}
+.ph .lbl{color:var(--text)}
+/* sidebar */
+.side{padding:12px 14px;border-bottom:1px solid var(--line)}
+input.q{width:100%;background:var(--bg);border:1px solid var(--line2);color:var(--hi);font-size:14px;padding:9px 11px;outline:none}
+input.q:focus{border-color:var(--amber)}
+.catrow{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:7px 8px;margin:0 -8px;cursor:pointer;border-left:2px solid transparent}
+.catrow:hover{background:var(--panel2)}
+.catrow.on{background:rgba(245,165,36,.09);border-left-color:var(--amber)}
+.catrow .n{font-size:13.5px;color:var(--hi)}
+.catrow .c{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:right}
+.catrow .b{grid-column:1/3;height:3px;background:var(--line)}
+.catrow .b i{display:block;height:100%;background:var(--cyan);opacity:.75}
+.catrow.on .b i{background:var(--amber)}
+.seg{display:flex;border:1px solid var(--line2);margin-top:6px}
+.seg button{flex:1;font-family:var(--mono);font-size:11px;padding:6px 0;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);border-right:1px solid var(--line2)}
+.seg button:last-child{border-right:none}
+.seg button.on{background:var(--amber);color:#111}
+.clear{font-family:var(--mono);font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em}
+/* feed */
+.ev{padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.ev:hover{background:var(--panel2)}
+.ev .t{font-size:13.5px;color:var(--hi);margin-top:4px;line-height:1.35}
+.ev .m{font-size:12px;color:var(--dim);margin-top:2px}
+.sev{font-family:var(--mono);font-size:10px;padding:2px 6px;letter-spacing:.06em}
+.sev.hi{color:var(--amber);border:1px solid #6b4d16;background:rgba(245,165,36,.1)}
+.sev.up{color:var(--green);border:1px solid #235a3a}
+.sev.dn{color:var(--red);border:1px solid #6a2a2c}
+.sev.in{color:var(--cyan);border:1px solid #20565b}
+/* tabs */
+.tabs{display:flex;align-items:center;border-bottom:1px solid var(--line);background:var(--panel);overflow-x:auto}
+.tab{font-family:var(--mono);font-size:12px;letter-spacing:.08em;padding:12px 16px;color:var(--dim);text-transform:uppercase;border-bottom:2px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber);background:var(--bg)}
+.tabs .opts{display:flex;gap:6px;padding:0 10px;margin-left:auto}
+.view{display:none;flex:1;min-height:0}
+.view.on{display:flex;flex-direction:column}
+.activebar{display:none;padding:8px 14px;border-bottom:1px solid var(--line);font-size:13px;color:var(--dim);gap:8px;align-items:center;flex-wrap:wrap}
+.activebar.on{display:flex}
+.activebar .tag{color:var(--amber);border:1px solid #6b4d16;padding:2px 8px;font-size:12px;cursor:pointer}
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{position:sticky;top:0;background:var(--panel);color:var(--dim);font-family:var(--mono);font-weight:500;font-size:11px;letter-spacing:.07em;text-transform:uppercase;text-align:right;padding:9px 10px;border-bottom:1px solid var(--line2);cursor:pointer;white-space:nowrap;z-index:2}
+thead th:hover{color:var(--hi)}
+thead th.sorted{color:var(--amber)}
+th.l,td.l{text-align:left}
+tbody td{padding:10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-family:var(--mono);font-size:13px}
+tbody tr.g{cursor:pointer}
+tbody tr.g:hover td{background:var(--panel2)}
+tbody tr.sel td{background:rgba(245,165,36,.08)}
+tbody tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+tr.grp td{background:var(--panel);text-align:left;font-family:var(--sans);padding:12px 10px 8px;border-bottom:1px solid var(--line2)}
+tr.grp .gt{font-size:14px;font-weight:600;color:var(--hi)}
+tr.grp .gs{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:10px}
+.gname{font-family:var(--sans);font-size:14px;color:var(--hi);font-weight:500;max-width:230px;overflow:hidden;text-overflow:ellipsis;display:block}
+.gcre{font-family:var(--sans);font-size:12px;color:var(--dim);display:block;max-width:260px;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.up{color:var(--green)}.dn{color:var(--red)}.flat{color:var(--dim)}
+.bar{display:inline-block;height:5px;background:var(--cyan);opacity:.7;vertical-align:middle;margin-right:8px}
+.ctag{display:inline-block;font-family:var(--sans);font-size:11.5px;padding:2px 7px;border:1px solid var(--line2);color:var(--text);margin:1px 3px 1px 0;cursor:pointer}
+.ctag:hover{border-color:var(--amber);color:var(--amber)}
+.ctag.sec{color:var(--dim)}
+.updf{font-family:var(--mono);font-size:10px;color:var(--cyan);margin-left:7px}
+.mom{font-family:var(--mono);font-size:11px;letter-spacing:.05em;padding:2px 7px}
+.mom.rising{color:var(--amber);border:1px solid #6b4d16}
+.mom.declining{color:var(--red);border:1px solid #6a2a2c}
+.mom.stable{color:var(--dim);border:1px solid var(--line2)}
+.pro{display:none}
+body.prom .pro{display:table-cell}
+/* category cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:14px}
+.card{border:1px solid var(--line2);background:var(--panel);padding:14px;cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:var(--amber)}
+.card.on{border-color:var(--amber);background:rgba(245,165,36,.05)}
+.card h3{font-size:16px;font-weight:600;color:var(--hi)}
+.card .d{font-size:12.5px;color:var(--dim);margin-top:3px;line-height:1.4;min-height:34px}
+.card .st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 10px;padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.card .st b{display:block;font-family:var(--mono);font-size:17px;font-weight:500;color:var(--hi)}
+.card .st span{font-size:11px;color:var(--dim)}
+.card .tl div{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
+.card .tl div span:last-child{font-family:var(--mono);color:var(--dim)}
+.card .ris{font-family:var(--mono);font-size:11px;color:var(--amber);margin-top:8px}
+/* charts */
+.chartwrap{flex:1;min-height:0;padding:14px;display:flex;flex-direction:column}
+.chartwrap svg{flex:1;width:100%;min-height:340px}
+.note{font-size:13px;color:var(--dim);padding:10px 14px;border-top:1px solid var(--line);line-height:1.5}
+.note b{color:var(--text);font-weight:600}
+svg text{font-family:var(--mono);fill:var(--dim);font-size:11px}
+.tip{position:fixed;pointer-events:none;background:#0e1218f5;border:1px solid var(--line2);padding:9px 11px;font-family:var(--mono);font-size:12px;z-index:60;display:none;max-width:280px;line-height:1.55}
+.tip b{color:var(--hi);font-family:var(--sans);font-size:13px}
+/* dossier */
+.dossier{padding:16px}
+.dossier h2{font-size:20px;font-weight:600;color:var(--hi);line-height:1.25;margin:8px 0 3px}
+.dossier .by{font-size:13px;color:var(--dim)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-top:14px}
+.cell{padding:11px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cell:nth-child(2n){border-right:none}
+.cell:nth-last-child(-n+2){border-bottom:none}
+.cell .v{font-family:var(--mono);font-size:19px;color:var(--hi);margin-top:4px}
+.cell .s{font-size:11.5px;color:var(--dim);margin-top:2px}
+.sect{margin-top:18px}
+.sect>.lbl{display:block;margin-bottom:8px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.meter{display:grid;grid-template-columns:90px 1fr 34px;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+.meter .trk{height:6px;background:var(--line);position:relative}
+.meter .fil{position:absolute;left:0;top:0;bottom:0;background:var(--cyan)}
+.meter .n{text-align:right;font-family:var(--mono);color:var(--hi)}
+.assess{font-size:13.5px;line-height:1.6}
+.assess p{margin-bottom:8px}
+.assess .k{font-family:var(--mono);font-size:10.5px;color:var(--amber);letter-spacing:.08em;margin-right:5px}
+.peers div{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.peers div span:last-child{font-family:var(--mono);color:var(--dim);white-space:nowrap}
+.peers div:hover{color:var(--amber)}
+.btn{display:inline-block;margin-top:16px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:9px 12px;border:1px solid var(--amber);color:var(--amber);text-decoration:none}
+.btn:hover{background:var(--amber);color:#111}
+.close{display:none}
+/* help modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--line2);max-width:640px;width:100%;max-height:85vh;overflow:auto;padding:22px 24px}
+.mbox h2{font-size:18px;color:var(--hi);margin-bottom:4px}
+.mbox p,.mbox li{font-size:14px;line-height:1.6;color:var(--text)}
+.mbox ul{margin:10px 0 0 18px}
+.mbox li{margin-bottom:7px}
+.mbox b{color:var(--hi)}
+.mbox .src{margin-top:14px;font-size:12.5px;color:var(--dim)}
+.scrim{display:none}
+/* responsive */
+@media (max-width:1150px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100vh}
+  .main{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi:nth-child(5){display:none}
+  .brand small{display:none}
+  .mob{display:inline-block}
+  .col.left,.col.right{position:fixed;top:0;bottom:0;z-index:70;width:min(380px,92vw);transform:translateX(-105%);transition:transform .22s;border:none;box-shadow:0 0 40px rgba(0,0,0,.6);background:var(--bg)}
+  .col.left{left:0}
+  .col.right{right:0;transform:translateX(105%)}
+  body.showL .col.left,body.showR .col.right{transform:none}
+  body.showL .scrim,body.showR .scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:65}
+  .close{display:inline-block}
+  .center{min-height:calc(100vh - 52px)}
+  .chartwrap svg{min-height:420px}
+  .gname,.gcre{max-width:170px}
+  .nm{display:none!important}
+  .bar{display:none}
+  .gname,.gcre{max-width:128px}
+  .updf{display:none}
+  .live{display:none}
+  .tabs .opts{display:none}
+  .kpi{padding:10px 14px}.kpi .v{font-size:20px}
+  tbody td,thead th{padding:9px 5px}
+}
+
+/* live additions */
+.banner{display:none;padding:9px 16px;font-size:13px;border-bottom:1px solid var(--line2);background:rgba(69,199,209,.07);color:var(--text)}
+.banner.on{display:block}
+.banner.warn{background:rgba(245,165,36,.09)}
+.banner b{color:var(--hi)}
+.spark{vertical-align:middle;margin-right:8px}
+select.q{width:100%;background:var(--bg);border:1px solid var(--line2);color:var(--hi);padding:8px 10px;outline:none;cursor:pointer;margin-top:6px;font-size:13px;font-family:var(--sans)}
+select.q option{background:var(--panel)}
+.rng{display:flex;gap:4px;margin-bottom:6px}
+.rng button{font-family:var(--mono);font-size:11px;padding:4px 9px;border:1px solid var(--line2);color:var(--dim)}
+.rng button.on{background:var(--amber);color:#111;border-color:var(--amber)}
+.chartbox{border:1px solid var(--line);padding:8px 6px 4px;background:var(--bg)}
+.chartbox svg{width:100%;height:150px;display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+.kv span:nth-child(odd){color:var(--dim)}
+.kv span:nth-child(even){text-align:right;font-family:var(--mono);color:var(--hi);font-size:12px}
+.ev .ago{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-left:6px}
+.loading{padding:40px;text-align:center;color:var(--dim);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="app" style="grid-template-rows:52px auto auto 1fr">
+  <header class="top">
+    <button class="tbtn mob" id="openL">☰ Filters</button>
+    <div class="brand"><div class="hex"></div>BLOCKWATCH <small>// ROBLOX INTELLIGENCE CONSOLE</small></div>
+    <div class="sp"></div>
+    <span class="live"><span class="dot"></span><span id="fresh">loading…</span></span>
+    <button class="tbtn" id="helpBtn">? How to read</button>
+  </header>
+  <div class="banner" id="banner"></div>
+  <section class="kpis" id="kpis"></section>
+
+  <main class="main">
+    <aside class="col left">
+      <div class="scroll">
+        <div class="ph"><span class="lbl">Filters</span><button class="clear close" id="closeL">Close ✕</button><button class="clear" id="clearAll">Reset</button></div>
+        <div class="side">
+          <input class="q" id="q" placeholder="Search a game or creator…" autocomplete="off">
+          <div class="lbl" style="margin-top:12px">Momentum (24h)</div>
+          <div class="seg" id="momSeg"><button data-v="" class="on">All</button><button data-v="rising">Rising</button><button data-v="stable">Stable</button><button data-v="declining">Falling</button></div>
+          <div class="lbl" style="margin-top:12px">Size</div>
+          <div class="seg" id="sizeSeg"><button data-v="" class="on">All</button><button data-v="new">New &lt;50M</button><button data-v="big">Giants 1B+</button></div>
+          <div class="lbl" style="margin-top:12px">Roblox genre</div>
+          <select class="q" id="genreSel"><option value="">All Roblox genres</option></select>
+        </div>
+        <div class="side">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="lbl">Categories</span><span class="lbl">games · players</span></div>
+          <div id="catList"></div>
+        </div>
+        <div class="ph"><span class="lbl">Signal feed</span><span class="lbl" id="evcount"></span></div>
+        <div id="feed"></div>
+      </div>
+    </aside>
+
+    <section class="col center">
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-v="table">Leaderboard</button>
+        <button class="tab" data-v="cats">Categories</button>
+        <button class="tab" data-v="map">Quadrant map</button>
+        <button class="tab" data-v="fresh">Breakout radar</button>
+        <div class="opts"><button class="tbtn" id="groupBtn">Group by category</button><button class="tbtn" id="proBtn">More columns</button></div>
+      </div>
+      <div class="activebar" id="activebar"></div>
+      <div class="view on" id="v-table"><div class="scroll"><table><thead><tr id="thead"></tr></thead><tbody id="tbody"><tr><td class="loading">Loading live data…</td></tr></tbody></table></div></div>
+      <div class="view" id="v-cats"><div class="scroll"><div class="cards" id="cards"></div></div>
+        <div class="note">Click a category to filter the whole console by it. Games can belong to more than one. Categories are BLOCKWATCH's own tags (set in <b>collector/tags.json</b>), separate from Roblox's official genres, which you can filter on the left.</div></div>
+      <div class="view" id="v-map"><div class="chartwrap"><svg id="mapSvg"></svg></div>
+        <div class="note"><b>Across</b> = players online now (log scale) · <b>Up</b> = like ratio · <b>Bubble size</b> = favorites · <b>Orange</b> = rising, <b>red</b> = falling over 24h.</div></div>
+      <div class="view" id="v-fresh"><div class="chartwrap"><svg id="freshSvg"></svg></div>
+        <div class="note"><b>Breakout index</b> = players online per 1M lifetime visits. Old giants score low; a new hit pulls a crowd before visits pile up, so it scores high.</div></div>
+    </section>
+
+    <aside class="col right">
+      <div class="scroll">
+        <div class="ph"><span class="lbl">Game dossier</span><span class="lbl" id="dossRank"></span><button class="clear close" id="closeR">Close ✕</button></div>
+        <div id="dossier"></div>
+      </div>
+    </aside>
+  </main>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="tip" id="tip"></div>
+<div class="modal" id="help"><div class="mbox">
+  <h2>How to read BLOCKWATCH</h2>
+  <p>Live console for the games on Roblox's charts, refreshed about every 10 minutes. Click any game for its dossier and player-count chart, or click a category to narrow everything down.</p>
+  <ul>
+    <li><b>Playing</b>: people in the game right now (concurrent users, or CCU). The little line next to it is the last 24 hours.</li>
+    <li><b>1H / 24H / 7D</b>: change in players compared with 1 hour, 1 day and 1 week ago. Comparing with the same time yesterday removes the day/night swing.</li>
+    <li><b>Likes</b>: thumbs-up share of all votes. 95%+ is excellent; under 80% is weak.</li>
+    <li><b>Momentum</b>: Rising if up 15%+ over 24h, Falling if down 15%+.</li>
+    <li><b>Breakout index</b>: players now per 1M lifetime visits. High = new game taking off.</li>
+    <li><b>Peak time</b>: the hour the game is usually busiest, shown in your local time.</li>
+    <li><b>Categories</b>: BLOCKWATCH tags like "Incremental / +1 Sim" or "Hangout & Social". <b>Roblox genre</b> is Roblox's own label.</li>
+    <li><b>Signal feed</b>: automatically detected surges, drops, updates, new chart entries, milestones and record highs.</li>
+  </ul>
+  <p class="src">Data: Roblox's public web APIs, collected by the BLOCKWATCH collector on GitHub. Not affiliated with Roblox.</p>
+  <button class="btn" id="helpClose">Got it</button>
+</div></div>
+
+<script>
+const DATA_BASE='https://raw.githubusercontent.com/RahulDesai1178/blockwatch/data/';
+const CATS={"inc": ["Incremental / +1 Sim", "Number-go-up games: +1 every second, tapping, upgrading, rebirths."], "steal": ["Steal-a-Thing", "Build a base, collect items, steal from other players' bases."], "collect": ["Pets, Eggs & Collecting", "Hatch, catch or feed for animals, pets and eggs to complete a collection."], "rng": ["RNG & Gacha", "Roll, spin or open for rare drops."], "farm": ["Farming & Gardening", "Plant, grow and sell."], "tycoon": ["Tycoon", "Build up a business or base that earns over time."], "hang": ["Hangout & Social", "Low-pressure places to chill, chat and show off."], "rp": ["Roleplay & Life Sim", "Houses, jobs, families, towns."], "fashion": ["Avatar & Fashion", "Outfits, avatar editors, runway and dress-up."], "horror": ["Horror", "Scary games, chases, killer-vs-survivors."], "surv": ["Survival & Co-op", "Team up, gather supplies and last as long as you can."], "party": ["Party & Minigames", "Short rounds, social deduction, quick chaos."], "arpg": ["Action RPG", "Level up, quest, grind bosses."], "td": ["Tower Defense", "Place units, hold the waves."], "bg": ["Battlegrounds & Fighting", "Melee combat, abilities, duels."], "fps": ["Shooter & PVP", "Guns, arenas, competitive PVP."], "phys": ["Physics & Ragdoll", "Ragdoll, destruction and physics sandboxes."], "sport": ["Sports", "Soccer, volleyball, basketball and more."], "fish": ["Fishing", "Cast, catch, upgrade the rod."], "obby": ["Obby & Parkour", "Obstacle courses and climbing."], "drive": ["Driving & Vehicles", "Cars, racing, drifting."], "build": ["Building & Sandbox", "Build things: worlds, tracks, bases."], "mine": ["Mining & Digging", "Dig down, find ores, upgrade the pickaxe."], "puzzle": ["Puzzle & Strategy", "Think-y games, puzzles, strategy."], "anime": ["Anime-Inspired", "Games themed on anime styles or series."], "music": ["Music & Rhythm", "Listen, perform, DJ or play along to music."], "adventure": ["Adventure & Story", "Explore, follow a story, hunt for things."], "sim": ["Other Simulators", "Simulation games that don't fit a more specific category."], "other": ["Uncategorized", "Not tagged yet."]};
+const SNAP=`Steal An Egg|—|634.4K|0.5|91|11.6B|10.1M|stable|steal;collect
+[🥤] Adopt Me!|Uplift Games|229.4K|1.5|86|45.5B|29.9M|stable|rp;hang
+Throw Food For Animals|Goofy Chupacabra|209.7K|-4.6|94|344.3M|334K|stable|collect;inc
+Brookhaven 🏡RP|Voldex|199.4K|2.4|86|89.6B|31.1M|stable|rp;hang
+[🎃] Blox Fruits|Gamer Robot Inc|181.7K|-9.6|92|65.6B|20.3M|stable|arpg;anime
+99 Nights in the Forest 🔦|Grandma's Favourite Games|130.1K|9.7|91|30.6B|10.3M|stable|surv;horror
+Break and Steal an Egg|ILGames x Eggs|89.4K|20.6|97|464.3M|824.1K|rising|steal;collect
+[🎯] RIVALS|Nosniy Games|82K|-2.6|94|19.4B|97.8M|stable|fps
+[🏝️UPD] Fish It! 🐟|Fish Atelier|64.5K|0.7|83|4.8B|1.3M|stable|fish
+[☀️UPD 21🏖️] Anime Adventures|Gomu|60.8K|-4.8|92|2.6B|2.3M|stable|td;anime
+Murder Mystery 2|Nikilis|60.8K|2.4|91|32.3B|24.9M|stable|party;fps
+Hyper Realistic Ragdoll|Emo Playworks|60.2K|14.9|91|30.6M|127K|stable|phys
+[🎃] Jujutsu Shenanigans|Jujutsu Shenanigans!|52.1K|4.8|86|8B|3.3M|stable|bg;anime
+🌻 Dandy's World [ALPHA]|BlushCrunch Studio|52.1K|21.3|89|8B|4.9M|rising|horror;surv
+[RELEASE] Anime Crusaders X|X32x|45.7K|5.5|98|124.5M|468.5K|stable|td;anime
+Catalog Avatar Creator|Muneeb|45.6K|1.1|94|8.3B|6.1M|stable|fashion;hang
+Fisch 🎩 [COMPANION HATS]|Fisching|43.4K|-0.9|91|5.2B|3.7M|stable|fish
+[🏰] Tap Simulator REBORN|Cursor Makers|38.1K|5.9|94|62.7M|190.1K|stable|inc
+[WEEK 4 🎃 x BUTCHER] Violence District|VIOLENCE DISTRICT|37.9K|0.9|93|1.7B|1.8M|stable|horror
+[KENDURI] MALAM SAMA OPAH|Sabun Studios|37.8K|3.6|84|77.1M|2.2M|stable|horror;surv
+🍁 [TYCOON] Pet Simulator 99! 🍀|BIG Games Pets|37.1K|-0.2|95|2.7B|2.2M|stable|collect;inc
+[HALLOWEEN] The Strongest Battlegrounds|Yielding Arts|35.3K|5.9|84|19.7B|7.8M|stable|bg;anime
+Bee Swarm Simulator|Onett|34.4K|2.3|96|4.7B|6.6M|stable|collect;inc
+Sol's RNG [ Part 2 🎃 ]|Sol's Studio|34.3K|-1.6|91|2.3B|1M|stable|rng
+Forsaken|Forsaken Dev Team|34.3K|1.6|84|6B|3.3M|stable|horror
+[🐉UPD 11 PART 1🎃] King Legacy|Sea King Games|33.6K|-2.1|92|4.1B|2.8M|stable|arpg;anime
+[🎃HLWN🎃] Evade|Hexagon Development Community|32.7K|4.8|94|9.5B|9M|stable|horror;party
+Attack on Titan Revolution|AoTR [PI]|32.5K|-4.9|96|1.2B|1.6M|stable|arpg;anime
+[🐜] Ant Evolution|tiny ants to big ants|32.3K|35.0|93|11.1M|37.2K|rising|inc
+Survive Your Ideas|Survive Your Ideas|30.1K|-5.0|89|137.1M|233.5K|stable|surv;party
+[🎃] Dress To Impress|Dress To Impress Group|27.3K|0.9|91|11.4B|7.8M|stable|fashion;hang
+[💀] Steal a Brainrot|BRAZILIAN SPYDER|26.4K|-4.1|85|74.5B|29.8M|stable|steal;collect
+(TOWING x LIMITED UPDATE 🎃) Drag Drive Simulator|ADV Gamers Team|25.8K|-5.9|96|704.7M|3.4M|stable|drive
+[UPD] Volleyball Legends|Volleyball Game Group|25.8K|3.8|95|4.2B|5.9M|stable|sport;anime
+Ragdoll Soccer|Ragdoll Athletics|23.1K|-4.4|74|47.4M|69.2K|stable|sport;phys
+100 Miles Down the River|goin with the flow|22.4K|15.1|93|5.2M|121.3K|rising|surv
+BloxNG [CRASH PHYSICS] 💥|Deform Dynamics|22.1K|-5.8|90|16.6M|59.2K|stable|phys;drive
+[💀DUELS] Murderers VS Sheriffs|MVS Duels Community|21.6K|1.8|86|2.1B|16.8M|stable|fps
+STAND OUT|Studio Umbra: Europa|21.3K|-7.2|97|16.2M|419.5K|stable|bg;anime
+Illegal Soccer|Repotted|21.1K|2.8|87|343.4M|369.5K|stable|sport
+Driving Empire [✨LIMITED + DRIFT✨]|Voldex|20.4K|1.8|93|3.5B|31.8M|stable|drive;rp
+DONT SPLASH|Bacon Theory|19.8K|-2.5|86|343.5M|753.2K|stable|obby
+Fling Things and People|Horomori|19.8K|2.1|80|3.8B|2.7M|stable|phys;hang
+[ALPHA] Practical Basketball|Practical's Games|19.6K|-9.5|93|150.7M|189.5K|stable|sport
+[🐟] Net a Fish!|UpdatesDev|19.2K|-6.9|93|19.2M|467.5K|stable|fish;collect
+[PATCH🎉] Cameraman Tower Defense|Aligators Games|19.1K|-5.7|98|149.2M|305.6K|stable|td
+[🦃EVENT] Toilet Tower Defense|Telanthric Development|18.9K|1.8|86|6.2B|1.6M|stable|td
+Throw a Seed|Fish Time Studios|17.9K|16.8|95|6.7M|10.6K|rising|farm;inc
+[🏹] Shoot Arrows For Animals!|+1 Games Club|17.4K|21.7|99|2.4M|185.8K|rising|collect;inc
+Clean The Ballpit!|Mutrix Games|17.4K|-2.2|92|5.6M|28.5K|stable|inc
+Anime Dice|More & More Games|16.9K|-8.0|99|179.9M|210.1K|stable|rng;anime
+100 Days at Sea|Stranded Devs|16.4K|1.7|97|444.3M|10.3M|stable|surv
+[UPD] Lethal Ape Experience|Breet Studios|16.3K|8.2|93|182.9M|426.1K|stable|surv;horror
+[🏆] Huss Valley|Huss Valley Official|16.2K|-2.1|87|293.7M|428.1K|stable|rp
+The Forge [🪽x👹]|The Forge Community|16.1K|-2.6|94|1.1B|1.1M|stable|arpg;mine
+Mukbang Game [Testing]🥤🎍|sorynn22|15.6K|24.8|93|600.1M|1.2M|rising|hang;party
+[🏺] Grow a Garden 🌶️|The Garden Game|15K|-2.6|90|36B|11.5M|stable|farm;collect
+Berry Avenue 🏠 RP|Amberry Games|14.7K|-0.7|86|9B|3.8M|stable|rp;hang
+Voxel Wars|Voxel Front|14.6K|-2.8|80|14.6M|76.7K|stable|fps;build
+Build Your World! 🔨|Cozy Games!|14.3K|11.1|70|10.8M|24.1K|stable|build;hang
+Bloody Ragdoll Physics 🩸|blablablablabla123123|14.2K||87|29.3M|923.7K|declining|phys
+🔥Hypershot|Frosted Studio|14.1K|-0.6|94|1.4B|24.5M|stable|fps
+🦖 Creatures of Sonaria ✨ Survive Kaiju Animals|Sonar Studios|14K|-2.2|92|2.3B|11.6M|stable|surv;rp
+Steal an Anime Pack|Anime Tuff Games|13.9K|-3.7|96|21M|707K|stable|steal;anime
+[⚔️] Kit PVP FFA|MC PVP Community|13.9K|136.9|79|2.5M|5.1K|rising|fps
+Realistic Ragdoll MMA 🥊|Ultimate Champion|13.9K|-15.8|76|14.5M|38.1K|declining|phys;bg
+Unstable SMP FFA [JAVA PVP!][IS]|Insomnia Studios|13.9K|-3.1|85|34M|67K|stable|fps;build
+🛍️ My Avatar!|THINK DIFFERENT.|13.8K|6.6|91|522.2M|6.2M|stable|fashion;hang
+Vox Seas|Vox Seas!|13.6K|14.4|94|32.6M|647.6K|stable|arpg
+Tower Defense Simulator|Paradoxum Games|13.6K|6.4|94|5.1B|3.5M|stable|td
+Dead Rails|RCM Games|13.4K|6.7|93|6.7B|6.2M|stable|surv
+LifeTogether 🏠 RP|Cinnamon Software|13.4K|-0.5|90|4.1B|16.3M|stable|rp;hang
+🏁 Build A Racetrack|Fun² Games|13.4K|2.6|79|7.9M|15.4K|stable|build;drive
+[🛏️] BedWars|Easy.gg|12.5K|-0.2|82|11.9B|4.7M|stable|fps;build
+[🏝️ISLAND] Criminal Simulator 💰|Pigged Out Studios|12.5K|-8.5|93|31.9M|426.4K|stable|inc
+Volley Bomb|is peaaaaak|12.5K|5.7|92|14.4M|21.7K|stable|sport;party
+Tower of Hell|YXceptional Studios|12K|0.8|74|29.5B|12.1M|stable|obby
+🎀 Catalog Avatar Runway|Context Works|12K|0.5|92|91.9M|271.6K|stable|fashion;hang
+Vanguards: Trail of the Saint|Kitawari|12K|-6.5|97|2.1B|2M|stable|td;anime
+Climb For Animals Eggs🥚|100% GRIND|11.7K|9.5|99|101M|191.5K|stable|obby;collect;inc
+13 Days to Escape [ALPHA]|RoDark Studios|11.7K|-8.8|82|32.3M|113.3K|stable|surv;horror
+[🕰️] Kick a Lucky Block|No More Flops|11.7K|2.4|95|2B|27.2M|stable|rng;inc
+Fish for Secret Animals!|Chill Shark|11.5K|54.4|93|804.7K|3.3K|rising|fish;collect
+Project Slayers 2|Ouw Productions|11.2K|-4.7|97|158.9M|553.4K|stable|arpg;anime
+Stop The Tsunami!|Beach Defenders!|11.2K|-7.8|86|22.6M|353.5K|stable|surv;party
+🎃Flee the Facility🍁|A.W. Apps|11K|4.2|92|6.2B|9.8M|stable|horror;party
+🎃 KRN: Crosshair|Frist's Clothing|10.9K|11.5|78|20.6M|891.9K|stable|fps
++1 Speed Keyboard Escape | Candy & Chocolate|Secret Verse Studio|10.8K|-1.0|97|6.7B|7.3M|stable|inc;obby
+⛏️ My Anime Mine|Cursedddd Games|10.8K|-6.8|99|37.5M|72.4K|stable|mine;inc;anime
+Sandworm Playground|Kami Stuff.|10.6K|-5.3|87|15.3M|38.6K|stable|phys
+Blade Ball|Wiggity.|10.5K|-0.6|93|6.5B|13.1M|stable|bg;party
+[📱] Welcome to Bloxburg|Bloxburg Development|10.4K|11.0|89|10.2B|14M|stable|rp;build
+[🦑] Squid Game X|redifi|10.4K|9.2|94|2.4B|2M|stable|party
+[OTOYA 🥷] Blue Lock: Rivals|Blue Lock Rivals Unofficial Fans|10.4K|2.9|97|5B|6.4M|stable|sport;anime
+[UPD6 🎉] Depth Incremental|Core Loop|10K|-13.5|97|17.3M|223.1K|stable|inc;mine
+[👊UPD] Heavyweight Fishing|Unknown Journey|10K|5.6|96|83.8M|125.7K|stable|fish;inc
+[🦃] 🧈 Stack A Butter Squishy [ASMR]|Team Lychee!|10K|-3.7|89|53.5M|1.3M|stable|hang;inc
+Lethal Ape (The Mines)|gub_dev|9.8K|9.1|88|425.2M|363K|stable|surv;mine
+Bike For Egg!|Huron Games|9.8K|-0.8|94|76.2M|1.4M|stable|inc;collect
+Do Not Stop.|make sure to drive fast|9.8K|-8.8|88|34.1M|339.1K|stable|drive;obby`;   // fallback snapshot (2026-11-20) used only if live data can't load
+// ---------- helpers ----------
+const f=n=>n==null?'—':n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':Math.round(n).toString();
+const fc=c=>c==null?'<span class="flat">—</span>':`<span class="${c>0.05?'up':c<-0.05?'dn':'flat'}">${c>0?'+':''}${Math.abs(c)>=100?c.toFixed(0):c.toFixed(1)}%</span>`;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cn=k=>(CATS[k]||CATS.other)[0];
+const ago=ts=>{const s=Date.now()/1000-ts; return s<90?'just now':s<3600?Math.round(s/60)+' min ago':s<86400?Math.round(s/3600)+' h ago':Math.round(s/86400)+' d ago';};
+const hourLocal=h=>{if(h==null)return '—'; const d=new Date(); d.setUTCHours(h,0,0,0); return d.toLocaleTimeString([], {hour:'numeric'});};
+const pct=(arr,v)=>arr.length?arr.filter(x=>x<=v).length/arr.length*100:0;
+const narrow=()=>matchMedia('(max-width:1150px)').matches;
+// ---------- state ----------
+let G=[],TOTAL=0,EVENTS=[],SERIES=null,META={},MODE='live',CSTAT={},CAT_ORDER=[],AR={};
+const S={q:'',cats:new Set(),mom:'',size:'',genre:'',sort:'players',dir:-1,sel:null,view:'table',group:false,pro:false,range:'24h'};
+function momOf(g){const c=g.d24h??(g.d1h!=null?g.d1h*1.5:null)??g.chg; if(c==null)return 'stable'; return c>=15?'rising':c<=-15?'declining':'stable';}
+function finish(){
+  TOTAL=G.reduce((a,g)=>a+g.players,0);
+  G.forEach((g,i)=>{g.rank=i+1; g.share=g.players/TOTAL*100; g.cat=g.cats[0]; g.mom=momOf(g); g.fresh=g.visits?g.players/(g.visits/1e6):0; g.favRate=g.visits?g.favs/g.visits*100:0;});
+  CSTAT={}; Object.keys(CATS).forEach(k=>{const gs=G.filter(g=>g.cats.includes(k)); CSTAT[k]={gs,n:gs.length,p:gs.reduce((a,g)=>a+g.players,0)};});
+  CAT_ORDER=Object.keys(CATS).filter(k=>CSTAT[k].n).sort((a,b)=>CSTAT[b].p-CSTAT[a].p);
+  AR={players:G.map(g=>g.players),like:G.filter(g=>g.like!=null).map(g=>g.like),fresh:G.map(g=>g.fresh),favRate:G.map(g=>g.favRate),chg:G.map(g=>g.d24h??g.chg??0)};
+  if(!S.sel||!G.find(g=>g.id===S.sel.id)) S.sel=G[0]; else S.sel=G.find(g=>g.id===S.sel.id);
+  const genres=[...new Set(G.map(g=>g.genre2||g.genre1).filter(Boolean))].sort();
+  const sel=document.getElementById('genreSel'); sel.innerHTML='<option value="">All Roblox genres</option>'+genres.map(x=>`<option${x===S.genre?' selected':''}>${esc(x)}</option>`).join('');
+}
+// ---------- loading ----------
+async function getJSON(name){const r=await fetch(DATA_BASE+name+'?t='+Math.floor(Date.now()/60000),{cache:'no-store'}); if(!r.ok) throw new Error(name+' '+r.status); return r.json();}
+async function loadLive(){
+  const [latest,events]=await Promise.all([getJSON('latest.json'),getJSON('events.json').catch(()=>[])]);
+  META=latest; EVENTS=events; MODE='live';
+  G=latest.games.map(g=>({...g,players:g.playing,upd:g.event,chg:null}));
+  finish();
+  getJSON('series.json').then(s=>{SERIES=s; render();}).catch(()=>{});
+}
+function loadSnapshot(){
+  const num=s=>{const m=(s||'').match(/([\d.]+)\s*([KMB]?)/); return m? +m[1]*({K:1e3,M:1e6,B:1e9}[m[2]]||1):null;};
+  const clean=n=>(n.replace(/\[[^\]]*\]|\([^)]*\)/g,' ').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}\u{2B00}-\u{2BFF}]/gu,' ').replace(/\s+/g,' ').trim())||n;
+  G=SNAP.trim().split('\n').map((line,i)=>{const p=line.split('|'); const cats=p.pop().split(';'), mom=p.pop(), fav=p.pop(), vis=p.pop(), like=p.pop(), chg=p.pop(), ply=p.pop(), cre=p.pop(); const raw=p.join('|').trim();
+    return {id:-(i+1),raw,name:clean(raw),creator:cre,players:num(ply),chg:chg===''?null:+chg,d1h:null,d24h:null,d7d:null,like:+like,visits:num(vis),favs:num(fav),cats,upd:/UPD|EVENT|RELEASE|PATCH|PART|WEEK|HALLOWEEN|HLWN|LIMITED/i.test(raw)};});
+  MODE='snapshot'; META={ts:Date.UTC(2026,10,20,5,45)/1000}; EVENTS=[]; finish();
+}
+async function load(first){
+  try{ await loadLive(); }catch(e){ console.warn('live data unavailable',e); if(first||!G.length) loadSnapshot(); }
+  banner(); kpis(); feed(); render();
+}
+function banner(){const b=document.getElementById('banner');
+  if(MODE==='snapshot'){b.className='banner on warn'; b.innerHTML='<b>Offline snapshot.</b> Live data couldn\'t load here, so this shows the 20 Nov 2026 snapshot. For live numbers, open <a href="https://rahuldesai1178.github.io/Blockwatch/" target="_blank" rel="noopener" style="color:var(--amber)">the live BLOCKWATCH site ↗</a>.'; return;}
+  const age=Date.now()/1000-(META.trackingSince||META.ts);
+  if(age<7*86400){b.className='banner on'; b.innerHTML=`<b>Building history.</b> Tracking since ${new Date(META.trackingSince*1000).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}. 1H changes appear after an hour, 24H after a day, 7D after a week.`;}
+  else b.className='banner';}
+function freshLabel(){document.getElementById('fresh').textContent=MODE==='live'?`LIVE · updated ${ago(META.ts)}`:'SNAPSHOT';}
+// ---------- filtering ----------
+function filtered(){const q=S.q.toLowerCase();
+  return G.filter(g=>(!q||g.name.toLowerCase().includes(q)||(g.creator||'').toLowerCase().includes(q))
+    &&(!S.cats.size||g.cats.some(c=>S.cats.has(c)))&&(!S.mom||g.mom===S.mom)
+    &&(!S.size||(S.size==='new'?g.visits<50e6:g.visits>=1e9))&&(!S.genre||(g.genre2||g.genre1)===S.genre));}
+// ---------- kpis ----------
+function kpis(){if(!G.length)return; const top=G[0], bc=CAT_ORDER[0];
+  const big=G.filter(g=>g.players>=2000), key=MODE==='live'?'d24h':'chg';
+  const hot=[...big].filter(g=>g[key]!=null).sort((a,b)=>b[key]-a[key])[0];
+  const newb=MODE==='live'?G.filter(g=>META.ts-(g.firstSeen||0)<86400&&META.ts-(META.trackingSince||0)>86400):G.filter(g=>g.visits<50e6);
+  const items=[['Players tracked',f(TOTAL),`across ${G.length} games`],['#1 game',f(top.players),top.name],
+    ['Biggest category',(CSTAT[bc].p/TOTAL*100).toFixed(0)+'%',cn(bc)+' · '+CSTAT[bc].n+' games'],
+    ['Fastest riser'+(MODE==='live'?' (24h)':''),hot?(hot[key]>0?'+':'')+hot[key].toFixed(0)+'%':'—',hot?hot.name:'needs 24h of data'],
+    MODE==='live'?['New on charts (24h)',newb.length,'games first seen today']:['New games in top 100',newb.length,'under 50M lifetime visits']];
+  document.getElementById('kpis').innerHTML=items.map(([l,v,s])=>`<div class="kpi"><div class="lbl">${l}</div><div class="v">${v}</div><div class="s">${esc(s)}</div></div>`).join('');}
+// ---------- sidebar ----------
+function catList(){const mx=Math.max(1,...CAT_ORDER.map(k=>CSTAT[k].p));
+  document.getElementById('catList').innerHTML=CAT_ORDER.map(k=>`<div class="catrow${S.cats.has(k)?' on':''}" data-c="${k}"><span class="n">${cn(k)}</span><span class="c">${CSTAT[k].n} · ${f(CSTAT[k].p)}</span><span class="b"><i style="width:${CSTAT[k].p/mx*100}%"></i></span></div>`).join('');}
+function toggleCat(k){S.cats.has(k)?S.cats.delete(k):S.cats.add(k); render();}
+document.getElementById('catList').onclick=e=>{const r=e.target.closest('.catrow'); if(r) toggleCat(r.dataset.c);};
+function seg(id,key){document.getElementById(id).onclick=e=>{const b=e.target.closest('button'); if(!b)return; S[key]=b.dataset.v; render();};}
+seg('momSeg','mom'); seg('sizeSeg','size');
+document.getElementById('genreSel').onchange=e=>{S.genre=e.target.value; render();};
+function syncSeg(){[['momSeg','mom'],['sizeSeg','size']].forEach(([id,k])=>document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===S[k])));}
+document.getElementById('clearAll').onclick=()=>{S.cats.clear();S.mom='';S.size='';S.q='';S.genre='';document.getElementById('q').value='';document.getElementById('genreSel').value='';render();};
+// ---------- feed ----------
+function feed(){let ev=[];
+  if(MODE==='live'){ev=EVENTS.slice(0,150).map(e=>({s:e.sev,k:e.kind,id:e.id,t:e.text,m:`${f(e.playing)} playing`,ts:e.ts}));}
+  G.forEach(g=>{
+    if(g.fresh>1000&&g.players>10000) ev.push({s:'in',k:'BREAKOUT',id:g.id,t:`${g.name} is a new game taking off`,m:`${f(g.players)} playing with only ${f(g.visits)} lifetime visits`,w:1});
+    if(g.like!=null&&g.like<=76&&g.players>8000) ev.push({s:'dn',k:'RISK',id:g.id,t:`${g.name} has weak ratings (${g.like}%)`,m:`${f(g.players)} playing despite low likes`,w:1});
+    if(MODE==='snapshot'&&g.chg!=null&&g.chg>=20) ev.push({s:'hi',k:'RISING',id:g.id,t:`${g.name} up ${g.chg.toFixed(0)}%`,m:`${f(g.players)} playing`,w:2});
+  });
+  document.getElementById('evcount').textContent=ev.length+' alerts';
+  document.getElementById('feed').innerHTML=ev.length?ev.map(e=>`<div class="ev" data-id="${e.id}"><span class="sev ${e.s||'in'}">${esc(e.k)}</span>${e.ts?`<span class="ago">${ago(e.ts)}</span>`:''}<div class="t">${esc(e.t)}</div><div class="m">${esc(e.m)}</div></div>`).join(''):'<div class="ev"><div class="m">Alerts appear here as the collector spots surges, drops, updates and new games.</div></div>';}
+document.getElementById('feed').onclick=e=>{const d=e.target.closest('.ev[data-id]'); if(!d)return; const g=G.find(x=>String(x.id)===d.dataset.id); if(g){closeL(); select(g);}};
+// ---------- sparkline ----------
+function seriesOf(g,hours){if(!SERIES||!SERIES.games)return null; const a=SERIES.games[String(g.id)]; if(!a)return null; return a.slice(-hours);}
+function spark(g){const a=seriesOf(g,24); if(!a)return ''; const v=a.filter(x=>x!=null); if(v.length<3)return '';
+  const mn=Math.min(...v),mx=Math.max(...v),w=54,h=16; let pts=[]; a.forEach((x,i)=>{if(x!=null)pts.push(`${(i/(a.length-1)*w).toFixed(1)},${(h-1-(mx===mn?.5:(x-mn)/(mx-mn))*(h-2)).toFixed(1)}`)});
+  const up=v[v.length-1]>=v[0]; return `<svg class="spark" width="${w}" height="${h}"><polyline points="${pts.join(' ')}" fill="none" stroke="${up?'#46c17a':'#f06366'}" stroke-width="1.3"/></svg>`;}
+// ---------- table ----------
+const COLS=[['rank','#',0,0],['name','Game',1,0],['cat','Category',1,2],['players','Playing',0,0],['d1h','1H',0,2],['d24h','24H',0,0],['d7d','7D',0,2],['like','Likes',0,0],
+  ['visits','Visits',0,1],['favs','Favorites',0,1],['fresh','Breakout',0,1],['peak24h','24h peak',0,1],['updated','Updated',0,1],['mom','Momentum',1,2]];
+function row(g,maxP){const sp=spark(g);
+  return `<tr class="g${S.sel===g?' sel':''}" data-id="${g.id}">
+  <td class="flat">${g.rank}</td>
+  <td class="l"><span class="gname">${esc(g.name)}${g.upd?'<span class="updf">● EVENT</span>':''}</span><span class="gcre">${esc(g.creator)}</span></td>
+  <td class="l nm"><span class="ctag" data-c="${g.cats[0]}">${cn(g.cats[0])}</span>${g.cats.length>1?`<span class="ctag sec" data-c="${g.cats[1]}" title="${esc(g.cats.slice(1).map(cn).join(', '))}">+${g.cats.length-1}</span>`:''}</td>
+  <td>${sp||`<span class="bar" style="width:${Math.max(3,g.players/maxP*56)}px"></span>`}${f(g.players)}</td>
+  <td class="nm">${fc(g.d1h)}</td><td>${fc(MODE==='live'?g.d24h:g.chg)}</td><td class="nm">${fc(g.d7d)}</td>
+  <td class="${g.like>=95?'up':g.like<80?'dn':''}">${g.like==null?'—':g.like.toFixed(0)+'%'}</td>
+  <td class="pro">${f(g.visits)}</td><td class="pro">${f(g.favs)}</td>
+  <td class="pro" style="color:${g.fresh>1000?'var(--amber)':'inherit'}">${f(g.fresh)}</td>
+  <td class="pro">${f(g.peak24h)}</td><td class="pro flat">${g.updated?ago(Date.parse(g.updated)/1000):'—'}</td>
+  <td class="l nm"><span class="mom ${g.mom}">${g.mom==='declining'?'FALLING':g.mom.toUpperCase()}</span></td></tr>`;}
+function table(rows){
+  document.getElementById('thead').innerHTML=COLS.map(([k,l,left,pro])=>`<th class="${left?'l':''} ${pro===1?'pro':pro===2?'nm':''} ${S.sort===k?'sorted':''}" data-k="${k}">${l}${S.sort===k?(S.dir<0?' ▾':' ▴'):''}</th>`).join('');
+  const maxP=G[0]?.players||1; let h='';
+  if(S.group){const keys=S.cats.size?CAT_ORDER.filter(k=>S.cats.has(k)):CAT_ORDER;
+    keys.forEach(k=>{const gs=rows.filter(g=>g.cats.includes(k)); if(!gs.length)return; const p=gs.reduce((a,g)=>a+g.players,0), lk=gs.filter(g=>g.like!=null);
+      h+=`<tr class="grp"><td colspan="14"><span class="gt">${cn(k)}</span><span class="gs">${gs.length} games · ${f(p)} playing · ${lk.length?(lk.reduce((a,g)=>a+g.like,0)/lk.length).toFixed(0)+'% avg likes':''}</span></td></tr>`+gs.map(g=>row(g,maxP)).join('');});
+  } else h=rows.map(g=>row(g,maxP)).join('');
+  document.getElementById('tbody').innerHTML=h||'<tr><td colspan="14" class="l flat" style="padding:24px">No games match these filters.</td></tr>';}
+document.getElementById('thead').onclick=e=>{const th=e.target.closest('th'); if(!th)return; const k=th.dataset.k;
+  if(S.sort===k) S.dir*=-1; else {S.sort=k; S.dir=['name','cat','mom','rank'].includes(k)?1:-1;} render();};
+document.getElementById('tbody').onclick=e=>{const t=e.target.closest('.ctag'); if(t){e.stopPropagation(); toggleCat(t.dataset.c); return;}
+  const tr=e.target.closest('tr.g'); if(tr) select(G.find(g=>String(g.id)===tr.dataset.id));};
+// ---------- category cards ----------
+function cards(){const sv=S.cats; S.cats=new Set(); const ids=new Set(filtered().map(g=>g.id)); S.cats=sv;
+  document.getElementById('cards').innerHTML=CAT_ORDER.map(k=>{const gs=CSTAT[k].gs.filter(g=>ids.has(g.id)); if(!gs.length) return ''; const lk=gs.filter(g=>g.like!=null), ris=gs.filter(g=>g.mom==='rising');
+    return `<div class="card${S.cats.has(k)?' on':''}" data-c="${k}"><h3>${cn(k)}</h3><div class="d">${esc(CATS[k][1])}</div>
+    <div class="st"><div><b>${f(gs.reduce((a,g)=>a+g.players,0))}</b><span>playing</span></div><div><b>${gs.length}</b><span>games</span></div><div><b>${lk.length?(lk.reduce((a,g)=>a+g.like,0)/lk.length).toFixed(0)+'%':'—'}</b><span>avg likes</span></div></div>
+    <div class="tl">${gs.slice(0,4).map(g=>`<div><span>${esc(g.name.slice(0,30))}</span><span>${f(g.players)}</span></div>`).join('')}</div>
+    ${ris.length?`<div class="ris">▲ ${ris.length} rising: ${ris.slice(0,3).map(g=>esc(g.name)).join(', ')}</div>`:''}</div>`;}).join('');}
+document.getElementById('cards').onclick=e=>{const c=e.target.closest('.card'); if(c) toggleCat(c.dataset.c);};
+// ---------- svg views ----------
+const tip=document.getElementById('tip');
+function showTip(e,g){tip.style.display='block';tip.innerHTML=`<b>${esc(g.name)}</b><br>${esc(cn(g.cat))}<br>${f(g.players)} playing · 24h ${g.d24h==null?'—':(g.d24h>0?'+':'')+g.d24h+'%'}<br>${g.like==null?'—':g.like+'%'} likes · ${f(g.favs)} favorites<br>${f(g.visits)} visits`;
+  tip.style.left=Math.min(e.clientX+14,innerWidth-290)+'px'; tip.style.top=Math.min(e.clientY+14,innerHeight-130)+'px';}
+const hideTip=()=>tip.style.display='none';
+const byId=id=>G.find(g=>String(g.id)===String(id));
+function bindSvg(svg){svg.onmousemove=e=>{const t=e.target.closest('[data-id]'); t?showTip(e,byId(t.dataset.id)):hideTip();}; svg.onmouseleave=hideTip;
+  svg.onclick=e=>{const t=e.target.closest('[data-id]'); if(t){hideTip(); select(byId(t.dataset.id));}};}
+const momCol={rising:'#f5a524',declining:'#f06366',stable:'#45c7d1'};
+function map(rows){const svg=document.getElementById('mapSvg'); const W=svg.clientWidth||800,H=svg.clientHeight||500,m={l:50,r:20,t:18,b:36};
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); rows=rows.filter(g=>g.like!=null&&g.players>=1000); if(!rows.length){svg.innerHTML='';return;}
+  const minP=Math.max(500,Math.min(...rows.map(g=>g.players))), lx0=Math.log10(minP*.9),lx1=Math.log10(Math.max(...rows.map(g=>g.players),minP*10)*1.15),y0=Math.max(40,Math.floor(Math.min(...rows.map(g=>g.like))/5)*5),y1=100;
+  const X=v=>m.l+(Math.log10(Math.max(v,minP*.9))-lx0)/(lx1-lx0)*(W-m.l-m.r),Y=v=>H-m.b-(Math.max(v,y0)-y0)/(y1-y0)*(H-m.t-m.b),R=v=>3.5+Math.sqrt(v/1e8)*30;
+  let s=''; [1e3,2e3,5e3,1e4,2e4,5e4,1e5,2e5,5e5,1e6,2e6].filter(v=>v>=minP*.9&&Math.log10(v)<=lx1).forEach(v=>{s+=`<line x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H-m.b}" stroke="#1d252f"/><text x="${X(v)}" y="${H-m.b+16}" text-anchor="middle">${f(v)}</text>`});
+  for(let v=y0;v<=100;v+=5) s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1d252f"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${v}%</text>`;
+  const med=[...rows].sort((a,b)=>a.players-b.players)[Math.floor(rows.length*.75)]?.players||5e4, mx=X(med),my=Y(90);
+  s+=`<line x1="${mx}" x2="${mx}" y1="${m.t}" y2="${H-m.b}" stroke="#4a5663" stroke-dasharray="3 4"/><line x1="${m.l}" x2="${W-m.r}" y1="${my}" y2="${my}" stroke="#4a5663" stroke-dasharray="3 4"/>
+  <text x="${W-m.r-6}" y="${m.t+14}" text-anchor="end" style="fill:#46c17a;letter-spacing:.1em">BIG &amp; LOVED</text><text x="${m.l+8}" y="${m.t+14}" style="fill:#f5a524;letter-spacing:.1em">HIDDEN GEMS</text>
+  <text x="${W-m.r-6}" y="${H-m.b-8}" text-anchor="end" style="fill:#f06366;letter-spacing:.1em">BIG BUT SHAKY</text><text x="${m.l+8}" y="${H-m.b-8}" style="letter-spacing:.1em">LONG TAIL</text>`;
+  const labelCut=[...rows].sort((a,b)=>b.players-a.players)[7]?.players||0, placed=[];
+  [...rows].sort((a,b)=>b.favs-a.favs).forEach(g=>{const cx=X(g.players),cy=Y(g.like),sel=S.sel===g,r=R(g.favs);
+    s+=`<circle data-id="${g.id}" cx="${cx}" cy="${cy}" r="${r}" fill="${momCol[g.mom]}" fill-opacity="${sel?.6:.24}" stroke="${sel?'#fff':momCol[g.mom]}" stroke-width="${sel?2:.9}" style="cursor:pointer"/>`;
+    if((g.players>=labelCut||sel)&&!placed.some(([px,py])=>Math.abs(px-cx)<130&&Math.abs(py-cy)<15)){placed.push([cx,cy]); const right=cx>W-170; s+=`<text x="${right?cx-r-5:cx+r+5}" y="${cy+4}" text-anchor="${right?'end':'start'}" style="fill:${sel?'#fff':'#d5dde5'};font-size:12px;pointer-events:none">${esc(g.name.slice(0,22))}</text>`;}});
+  svg.innerHTML=s; bindSvg(svg);}
+function fresh(rows){const svg=document.getElementById('freshSvg'); const W=svg.clientWidth||800,H=svg.clientHeight||500; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const top=[...rows].filter(g=>g.players>=1000).sort((a,b)=>b.fresh-a.fresh).slice(0,20), lw=Math.min(230,W*.38), bw=W-lw-(W<600?60:130), rowH=Math.min(30,(H-26)/Math.max(top.length,1)), mx=Math.log10(Math.max(top[0]?.fresh||200,200)/100);
+  let s=`<text x="${lw}" y="13" style="letter-spacing:.1em">PLAYERS PER 1M LIFETIME VISITS</text>`;
+  top.forEach((g,i)=>{const y=24+i*rowH,w=Math.max(3,Math.log10(Math.max(g.fresh,101)/100)/mx*bw);
+    s+=`<g data-id="${g.id}" style="cursor:pointer"><text x="${lw-10}" y="${y+rowH/2+4}" text-anchor="end" style="fill:${S.sel===g?'#fff':'#d5dde5'};font-size:12px">${esc(g.name.slice(0,W<600?18:28))}</text>
+    <rect x="${lw}" y="${y+5}" width="${w}" height="${rowH-10}" fill="${momCol[g.mom]}" fill-opacity="${S.sel===g?.95:.55}"/><text x="${lw+w+8}" y="${y+rowH/2+4}" style="fill:#f1f5f9">${f(g.fresh)}</text>
+    ${W<600?'':`<text x="${W-8}" y="${y+rowH/2+4}" text-anchor="end">${f(g.players)} playing</text>`}</g>`;});
+  svg.innerHTML=s; bindSvg(svg);}
+// ---------- dossier chart ----------
+function lineChart(g){
+  let pts=[], unit='';
+  if(S.range==='60d'){pts=(g.daily||[]).map(([d,v])=>[Date.parse(d+'T12:00:00Z'),v]); unit='daily peak';}
+  else{const hrs=S.range==='24h'?24:168, a=seriesOf(g,hrs); if(a&&SERIES){const end=SERIES.start+(SERIES.games[String(g.id)].length-1)*3600; a.forEach((v,i)=>{if(v!=null) pts.push([(end-(a.length-1-i)*3600)*1000,v]);});} unit='hourly average';}
+  if(pts.length<2) return `<div class="chartbox"><div class="loading" style="padding:30px 10px;font-size:12px">${MODE==='live'?(SERIES?'Not enough history yet for this range. It fills in as the collector runs.':'Loading chart…'):'Charts need live data.'}</div></div>`;
+  const W=320,H=150,m={l:38,r:6,t:8,b:20}; const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]); const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys)*.92,y1=Math.max(...ys)*1.04;
+  const X=v=>m.l+(v-x0)/(x1-x0||1)*(W-m.l-m.r),Y=v=>H-m.b-(v-y0)/(y1-y0||1)*(H-m.t-m.b);
+  let s=''; [y0+(y1-y0)*.1,(y0+y1)/2,y1-(y1-y0)*.1].forEach(v=>s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1d252f"/><text x="${m.l-5}" y="${Y(v)+3}" text-anchor="end" style="font-size:9.5px">${f(v)}</text>`);
+  const fmt=t=>{const d=new Date(t); return S.range==='24h'?d.toLocaleTimeString([], {hour:'numeric'}):d.toLocaleDateString([], {month:'short',day:'numeric'});};
+  [x0,(x0+x1)/2,x1].forEach((t,i)=>s+=`<text x="${X(t)}" y="${H-5}" text-anchor="${['start','middle','end'][i]}" style="font-size:9.5px">${fmt(t)}</text>`);
+  const d=pts.map((p,i)=>`${i?'L':'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
+  s+=`<path d="${d}L${X(x1)},${H-m.b}L${X(x0)},${H-m.b}Z" fill="rgba(69,199,209,.12)"/><path d="${d}" fill="none" stroke="#45c7d1" stroke-width="1.6"/>`;
+  const mxp=pts[ys.indexOf(Math.max(...ys))]; s+=`<circle cx="${X(mxp[0])}" cy="${Y(mxp[1])}" r="3" fill="#f5a524"/>`;
+  return `<div class="chartbox"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${s}</svg></div><div class="lbl" style="margin-top:5px;text-transform:none;letter-spacing:0">${unit} · <span style="color:var(--amber)">●</span> peak ${f(mxp[1])}</div>`;}
+// ---------- dossier ----------
+function assess(g){const o=[]; const sp=G.filter(x=>x.cat===g.cat), sr=sp.indexOf(g)+1;
+  const tier=g.visits>5e9?'An established giant':g.visits>5e8?'A mature game':g.visits>5e7?'A growing game':'A new game';
+  o.push(`<p><span class="k">PROFILE</span>${tier} with ${f(g.visits)} lifetime visits. #${sr} of ${sp.length} in ${cn(g.cat)}, with ${g.share.toFixed(1)}% of all tracked players.</p>`);
+  if(g.d24h!=null){ if(g.d24h>=15) o.push(`<p><span class="k">MOMENTUM</span>Up ${g.d24h.toFixed(0)}% on this time yesterday. That's real growth, not the daily cycle.${g.updated&&Date.now()-Date.parse(g.updated)<3*86400e3?' It updated in the last 3 days, which is the likely cause.':''}</p>`);
+    else if(g.d24h<=-15) o.push(`<p><span class="k">MOMENTUM</span>Down ${Math.abs(g.d24h).toFixed(0)}% on this time yesterday, so it's losing players.</p>`);
+    else o.push(`<p><span class="k">MOMENTUM</span>Steady: within ${Math.abs(g.d24h).toFixed(0)}% of this time yesterday.</p>`);}
+  if(g.d7d!=null&&Math.abs(g.d7d)>=25) o.push(`<p><span class="k">TREND</span>${g.d7d>0?'Up':'Down'} ${Math.abs(g.d7d).toFixed(0)}% on a week ago.</p>`);
+  if(g.peakHourUTC!=null) o.push(`<p><span class="k">RHYTHM</span>Busiest around ${hourLocal(g.peakHourUTC)} and quietest around ${hourLocal(g.lowHourUTC)} (your time).${g.peak24h&&g.low24h?` Over the last day it swung between ${f(g.low24h)} and ${f(g.peak24h)}.`:''}</p>`);
+  if(g.fresh>1000) o.push(`<p><span class="k">BREAKOUT</span>${f(g.fresh)} players per 1M visits. That's a recent hit: the crowd arrived before the visits piled up.</p>`);
+  if(g.like!=null&&g.like>=95) o.push(`<p><span class="k">SENTIMENT</span>${g.like.toFixed(0)}% likes, better than ${pct(AR.like,g.like-0.01).toFixed(0)}% of tracked games.</p>`);
+  else if(g.like!=null&&g.like<80) o.push(`<p><span class="k">SENTIMENT</span>${g.like.toFixed(0)}% likes is on the weak end. Watch for drop-off.</p>`);
+  if(g.favRate>5) o.push(`<p><span class="k">LOYALTY</span>${g.favRate.toFixed(1)}% of visits ended in a favorite, which points to a strong returning-player base.</p>`);
+  if(g.upd) o.push(`<p><span class="k">EVENT</span>The title shows an update or event tag, which may be boosting current numbers.</p>`);
+  return o.join('');}
+const meter=(l,v)=>`<div class="meter"><span>${l}</span><div class="trk"><div class="fil" style="width:${v}%"></div></div><span class="n">${v.toFixed(0)}</span></div>`;
+function dossier(){const g=S.sel; if(!g) return; document.getElementById('dossRank').textContent='Rank #'+g.rank;
+  const peers=G.filter(x=>x.cats.includes(g.cat)&&x!==g).slice(0,5), same=g.creator?G.filter(x=>x.creator===g.creator&&x!==g):[];
+  const evs=EVENTS.filter(e=>e.id===g.id).slice(0,5);
+  const link=g.placeId?`https://www.roblox.com/games/${g.placeId}`:`https://www.roblox.com/discover/?Keyword=${encodeURIComponent(g.name)}`;
+  document.getElementById('dossier').innerHTML=`<div class="dossier">
+    ${g.cats.map(c=>`<span class="ctag" data-c="${c}">${cn(c)}</span>`).join('')} <span class="mom ${g.mom}">${g.mom==='declining'?'FALLING':g.mom.toUpperCase()}</span>
+    <h2>${esc(g.name)}</h2><div class="by">by ${esc(g.creator||'unknown creator')}${g.verified?' ✓':''}</div>
+    <div class="grid2">
+      <div class="cell"><div class="lbl">Playing now</div><div class="v">${f(g.players)}</div><div class="s">${g.share.toFixed(1)}% of tracked</div></div>
+      <div class="cell"><div class="lbl">24h change</div><div class="v">${fc(MODE==='live'?g.d24h:g.chg)}</div><div class="s">1h ${MODE==='live'?fc(g.d1h):'—'} · 7d ${fc(g.d7d)}</div></div>
+      <div class="cell"><div class="lbl">Visits</div><div class="v">${f(g.visits)}</div><div class="s">all time</div></div>
+      <div class="cell"><div class="lbl">Favorites</div><div class="v">${f(g.favs)}</div><div class="s">${g.favRate.toFixed(2)}% of visits</div></div>
+      <div class="cell"><div class="lbl">Likes</div><div class="v">${g.like==null?'—':g.like.toFixed(0)+'%'}</div><div class="s">${g.up?f(g.up)+' 👍 · '+f(g.down)+' 👎':'thumbs-up share'}</div></div>
+      <div class="cell"><div class="lbl">Breakout</div><div class="v" style="color:${g.fresh>1000?'var(--amber)':'inherit'}">${f(g.fresh)}</div><div class="s">players per 1M visits</div></div>
+    </div>
+    <div class="sect"><span class="lbl">Players over time</span>
+      <div class="rng" id="rng">${['24h','7d','60d'].map(r=>`<button data-r="${r}" class="${S.range===r?'on':''}">${r.toUpperCase()}</button>`).join('')}</div>${lineChart(g)}</div>
+    ${MODE==='live'?`<div class="sect"><span class="lbl">Key facts</span><div class="kv">
+      <span>24h peak / low</span><span>${f(g.peak24h)} / ${f(g.low24h)}</span>
+      <span>Busiest time (yours)</span><span>${hourLocal(g.peakHourUTC)}</span>
+      <span>Highest seen</span><span>${f(g.allTimePeak)}${g.allTimePeakTs?' · '+ago(g.allTimePeakTs):''}</span>
+      <span>Last game update</span><span>${g.updated?ago(Date.parse(g.updated)/1000):'—'}</span>
+      <span>Created</span><span>${g.created?new Date(g.created).toLocaleDateString([], {year:'numeric',month:'short',day:'numeric'}):'—'}</span>
+      <span>Roblox genre</span><span>${esc([g.genre1,g.genre2].filter(Boolean).join(' › ')||'—')}</span>
+      <span>Max per server</span><span>${g.maxPlayers??'—'}</span>
+      <span>On Roblox charts</span><span>${esc((g.charts||[]).filter(c=>!/filters|subscribe/.test(c)).slice(0,3).map(c=>c.replace(/-/g,' ')).join(', ')||'—')}${(g.charts||[]).length>3?' +'+((g.charts||[]).length-3):''}</span></div></div>`:''}
+    <div class="sect"><span class="lbl">Percentile vs tracked games</span>
+      ${meter('Size',pct(AR.players,g.players))}${g.like!=null?meter('Ratings',pct(AR.like,g.like)):''}${meter('Breakout',pct(AR.fresh,g.fresh))}${meter('Loyalty',pct(AR.favRate,g.favRate))}${meter('Momentum',pct(AR.chg,g.d24h??g.chg??0))}</div>
+    <div class="sect"><span class="lbl">Analysis</span><div class="assess">${assess(g)}</div></div>
+    ${evs.length?`<div class="sect"><span class="lbl">Recent signals</span><div class="peers">${evs.map(e=>`<div><span>${esc(e.kind)}: ${esc(e.text.replace(g.name,'').trim())}</span><span>${ago(e.ts)}</span></div>`).join('')}</div></div>`:''}
+    ${same.length?`<div class="sect"><span class="lbl">Same creator</span><div class="peers">${same.map(p=>`<div data-id="${p.id}"><span>${esc(p.name)}</span><span>${f(p.players)}</span></div>`).join('')}</div></div>`:''}
+    <div class="sect"><span class="lbl">Similar games · ${cn(g.cat)}</span><div class="peers">${peers.map(p=>`<div data-id="${p.id}"><span>${esc(p.name)}</span><span>${f(p.players)}${p.like!=null?' · '+p.like.toFixed(0)+'%':''}</span></div>`).join('')||'<div>None tracked</div>'}</div></div>
+    <a class="btn" href="${link}" target="_blank" rel="noopener">Open on Roblox ↗</a></div>`;}
+document.getElementById('dossier').onclick=e=>{const r=e.target.closest('#rng button'); if(r){S.range=r.dataset.r; dossier(); return;}
+  const t=e.target.closest('.ctag'); if(t){closeR(); toggleCat(t.dataset.c); return;} const d=e.target.closest('[data-id]'); if(d) select(byId(d.dataset.id));};
+// ---------- drawers / modal ----------
+const closeL=()=>document.body.classList.remove('showL'), closeR=()=>document.body.classList.remove('showR');
+document.getElementById('openL').onclick=()=>document.body.classList.add('showL');
+document.getElementById('closeL').onclick=closeL; document.getElementById('closeR').onclick=closeR;
+document.getElementById('scrim').onclick=()=>{closeL();closeR();};
+const help=document.getElementById('help');
+document.getElementById('helpBtn').onclick=()=>help.classList.add('on');
+document.getElementById('helpClose').onclick=()=>help.classList.remove('on');
+help.onclick=e=>{if(e.target===help) help.classList.remove('on');};
+try{ if(!localStorage.getItem('bw_seen2')){help.classList.add('on'); localStorage.setItem('bw_seen2','1');} }catch(e){}
+// ---------- wiring ----------
+function select(g){if(!g)return; S.sel=g; if(narrow()) document.body.classList.add('showR'); render();}
+function activebar(){const el=document.getElementById('activebar'); const parts=[...S.cats].map(k=>`<span class="tag" data-c="${k}">${cn(k)} ✕</span>`);
+  el.classList.toggle('on',parts.length>0); el.innerHTML='Showing: '+parts.join('')+' <button class="clear" id="clrCats">clear</button>';
+  el.onclick=e=>{const t=e.target.closest('.tag'); if(t) toggleCat(t.dataset.c); if(e.target.id==='clrCats'){S.cats.clear();render();}};}
+function render(){if(!G.length)return; let rows=filtered(); const k=S.sort;
+  rows.sort((a,b)=>{let x=a[k],y=b[k]; if(k==='updated'){x=x?Date.parse(x):null;y=y?Date.parse(y):null;} if(x==null)return 1; if(y==null)return -1; return (typeof x==='string'?(k==='cat'?cn(x).localeCompare(cn(y)):x.localeCompare(y)):x-y)*S.dir;});
+  syncSeg(); catList(); activebar(); freshLabel();
+  document.getElementById('groupBtn').classList.toggle('on',S.group); document.getElementById('proBtn').classList.toggle('on',S.pro);
+  document.body.classList.toggle('prom',S.pro); document.querySelector('.opts').style.visibility=S.view==='table'?'visible':'hidden';
+  if(S.view==='table') table(rows); if(S.view==='cats') cards(); if(S.view==='map') map(rows); if(S.view==='fresh') fresh(rows);
+  dossier();}
+document.getElementById('tabs').onclick=e=>{const t=e.target.closest('.tab'); if(!t)return; S.view=t.dataset.v;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t)); document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+S.view)); render();};
+document.getElementById('groupBtn').onclick=()=>{S.group=!S.group; render();};
+document.getElementById('proBtn').onclick=()=>{S.pro=!S.pro; render();};
+document.getElementById('q').oninput=e=>{S.q=e.target.value; render();};
+addEventListener('resize',()=>{if(S.view==='map'||S.view==='fresh') render();});
+setInterval(freshLabel,30000);
+setInterval(()=>load(false),5*60*1000);   // pull new data every 5 minutes
+load(true);
+</script>
+</body>
+</html>
